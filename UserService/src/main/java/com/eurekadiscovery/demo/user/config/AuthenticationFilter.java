@@ -2,6 +2,7 @@ package com.eurekadiscovery.demo.user.config;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -21,13 +23,21 @@ import com.eurekadiscovery.demo.user.dto.UserDTO;
 import com.eurekadiscovery.demo.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-	@Autowired
 	private UserService userService;
+	private Environment environment;
 
 	@Autowired
-	private Environment env;
+	public AuthenticationFilter(UserService usersService, Environment environment,
+			AuthenticationManager authenticationManager) {
+		this.userService = usersService;
+		this.environment = environment;
+		super.setAuthenticationManager(authenticationManager);
+	}
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res)
@@ -46,8 +56,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	@Override
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
-		String username = ((User) auth.getPrincipal()).getUsername();
-		UserDTO userDTO = userService.getUserDetails(username);
+		String userName = ((User) auth.getPrincipal()).getUsername();
+		UserDTO userDTO = userService.getUserDetailsByEmail(userName);
 
+		String token = Jwts.builder().setSubject(userDTO.getUserId())
+				.setExpiration(new Date(
+						System.currentTimeMillis() + Long.parseLong(environment.getProperty("token.expirationtime"))))
+				.signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret")).compact();
+
+		res.addHeader("token", token);
+		res.addHeader("userId", userDTO.getUserId());
 	}
 }

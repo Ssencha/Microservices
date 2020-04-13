@@ -1,6 +1,7 @@
 package com.eurekadiscovery.demo.user.service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
@@ -23,8 +24,6 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
-
-	private UserDetails userDetails;
 
 	@Override
 	public UserDTO createUser(UserDTO userDTO) {
@@ -52,12 +51,23 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDTO getUserDetails(String username) {
-
-		UserEntity userEntity = userRepository.findByEmail(username);
+	public UserDTO getUserDetailsByEmail(String email) {
+		UserEntity userEntity = userRepository.findByEmail(email);
 
 		if (null == userEntity) {
-			throw new UsernameNotFoundException(username);
+			throw new UsernameNotFoundException(email);
+		}
+		UserDTO userDTO = new UserDTO();
+		BeanUtils.copyProperties(userEntity, userDTO);
+		return userDTO;
+	}
+
+	@Override
+	public UserDTO getUserDetailsById(String userId) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
+
+		if (null == userEntity) {
+			throw new UsernameNotFoundException(userId);
 		}
 		UserDTO userDTO = new UserDTO();
 		BeanUtils.copyProperties(userEntity, userDTO);
