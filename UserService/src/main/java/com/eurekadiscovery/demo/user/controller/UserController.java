@@ -20,6 +20,24 @@ import com.eurekadiscovery.demo.user.dto.CreateUserResponseDTO;
 import com.eurekadiscovery.demo.user.dto.UserDTO;
 import com.eurekadiscovery.demo.user.service.UserService;
 
+class TestObj {
+	private List<String> list;
+	private String name;
+	public List<String> getList() {
+		return list;
+	}
+	public void setList(List<String> list) {
+		this.list = list;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+}
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -44,7 +62,7 @@ public class UserController {
 	}
 
 	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, value = "/createUser")
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, value = "/createuser")
 	public ResponseEntity<CreateUserResponseDTO> createUser(@RequestBody CreateUserRequestDTO createUserRequestDTO) {
 		UserDTO userDTO = new UserDTO();
 		CreateUserResponseDTO createUserResponseDTO = new CreateUserResponseDTO();
@@ -55,6 +73,25 @@ public class UserController {
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(createUserResponseDTO);
 
+	}
+	
+	public static void main(String[] args) {
+		TestObj obj = new TestObj();
+		List<String> list = new ArrayList<>();
+		list.add("Sunil");
+		list.add("Sencha");
+		obj.setList(list);
+		obj.setName("TestObj");
+		
+		TestObj temp = new TestObj();
+		
+		BeanUtils.copyProperties(obj, temp);
+//		List<String> list2 = new ArrayList<>();
+//		temp.setList(list2);
+		temp.getList().add("Anil");
+		
+		System.out.println(obj.getList().toString());
+		System.out.println(temp.getList().toString());
 	}
 
 }

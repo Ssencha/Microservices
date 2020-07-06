@@ -1,7 +1,6 @@
 package com.eurekadiscovery.demo.user.service;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
